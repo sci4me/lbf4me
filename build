@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ -f bin/lbf4me ]
+then
+	rm bin/lbf4me
+fi
+
+urn --shebang=luajit -o bin/lbf4me lbf4me/lbf4me.lisp
+mv bin/lbf4me.lua bin/lbf4me

@@ -1,0 +1,3 @@
+bin/lbf4me linguist-generated
+
+*.lisp linguist-language=lisp

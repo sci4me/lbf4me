@@ -1,0 +1,1466 @@
+#!/usr/bin/env luajit
+if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end
+if not table.unpack then table.unpack = unpack end
+local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
+local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
+local _libs = {}
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, arg_23_1, len_23_1, error1, getmetatable1, load1, next1, print1, getIdx1, setIdx_21_1, setmetatable1, tostring1, type_23_1, n1, slice1, byte1, char1, find1, format1, lower1, match1, sub1, upper1, concat1, remove1, unpack1, car1, cdr1, list1, _21_1, arg1, constVal1, first1, list_3f_1, empty_3f_1, string_3f_1, number_3f_1, symbol_3f_1, nil_3f_1, type1, neq_3f_1, map1, keys1, put_21_1, eq_3f_1, pretty1, abs1, car2, reduce1, partition1, filter1, nth1, pushCdr_21_1, removeNth_21_1, charAt1, clock1, exit1, getenv1, flush1, open1, read1, write1, succ1, pred1, symbol_2d3e_string1, fail_21_1, exit_21_1, self1, config1, coloredAnsi1, colored_3f_1, colored1, create1, setAction1, addAction1, addArgument_21_1, addHelp_21_1, usageNarg_21_1, usage_21_1, usageError_21_1, helpArgs_21_1, help_21_1, matcher1, parse_21_1, readAllMode_21_1, readAll_21_1, parse1, ir_2d3e_string1, buildJumpTable1, irToLua1, irToC1, interpretIr_21_1, match2, clearLoopRemoval1, moveLoopRemovalReplacer1, moveLoopRemovalA1, moveLoopRemovalB1, optimizeIr1, matchAndReplace1
+_3d_1 = function(v1, v2) return v1 == v2 end
+_2f3d_1 = function(v1, v2) return v1 ~= v2 end
+_3c_1 = function(v1, v2) return v1 < v2 end
+_3c3d_1 = function(v1, v2) return v1 <= v2 end
+_3e_1 = function(v1, v2) return v1 > v2 end
+_3e3d_1 = function(v1, v2) return v1 >= v2 end
+_2b_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t + _select(i, ...) end return t end
+_2d_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t - _select(i, ...) end return t end
+_25_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t % _select(i, ...) end return t end
+_2e2e_1 = function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return t end
+arg_23_1 = arg or {...}
+len_23_1 = function(v1) return #v1 end
+error1 = error
+getmetatable1 = getmetatable
+load1 = load
+next1 = next
+print1 = print
+getIdx1 = function(v1, v2) return v1[v2] end
+setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
+setmetatable1 = setmetatable
+tostring1 = tostring
+type_23_1 = type
+n1 = (function(x)
+	if type_23_1(x) == "table" then
+		return x["n"]
+	else
+		return #x
+	end
+end)
+slice1 = (function(xs, start, finish)
+	if not finish then
+		finish = xs["n"]
+		if not finish then
+			finish = #xs
+		end
+	end
+	local len = (finish - start) + 1
+	if len < 0 then
+		len = 0
+	end
+	local out, i, j = ({["tag"]="list",["n"]=len}), 1, start
+	while j <= finish do
+		out[i] = xs[j]
+		i, j = i + 1, j + 1
+	end
+	return out
+end)
+byte1 = string.byte
+char1 = string.char
+find1 = string.find
+format1 = string.format
+lower1 = string.lower
+match1 = string.match
+sub1 = string.sub
+upper1 = string.upper
+concat1 = table.concat
+remove1 = table.remove
+unpack1 = table.unpack
+car1 = (function(xs)
+	return xs[1]
+end)
+cdr1 = (function(xs)
+	return slice1(xs, 2)
+end)
+list1 = (function(...)
+	local xs = _pack(...) xs.tag = "list"
+	return xs
+end)
+_21_1 = (function(expr)
+	return not expr
+end)
+if nil == arg_23_1 then
+	arg1 = ({tag = "list", n = 0})
+else
+	arg_23_1["tag"] = "list"
+	if not arg_23_1["n"] then
+		arg_23_1["n"] = #arg_23_1
+	end
+	arg1 = arg_23_1
+end
+constVal1 = (function(val)
+	if type_23_1(val) == "table" then
+		local tag = val["tag"]
+		if tag == "number" then
+			return val["value"]
+		elseif tag == "string" then
+			return val["value"]
+		else
+			return val
+		end
+	else
+		return val
+	end
+end)
+first1 = (function(...)
+	local rest = _pack(...) rest.tag = "list"
+	return rest[1]
+end)
+list_3f_1 = (function(x)
+	return type1(x) == "list"
+end)
+empty_3f_1 = (function(x)
+	local xt = type1(x)
+	if xt == "list" then
+		return x["n"] == 0
+	elseif xt == "string" then
+		return #x == 0
+	else
+		return false
+	end
+end)
+string_3f_1 = (function(x)
+	return type_23_1(x) == "string" or type_23_1(x) == "table" and x["tag"] == "string"
+end)
+number_3f_1 = (function(x)
+	return type_23_1(x) == "number" or type_23_1(x) == "table" and x["tag"] == "number"
+end)
+symbol_3f_1 = (function(x)
+	return type1(x) == "symbol"
+end)
+nil_3f_1 = (function(x)
+	return type_23_1(x) == "nil"
+end)
+type1 = (function(val)
+	local ty = type_23_1(val)
+	if ty == "table" then
+		return val["tag"] or "table"
+	else
+		return ty
+	end
+end)
+neq_3f_1 = (function(x, y)
+	return _21_1(eq_3f_1(x, y))
+end)
+map1 = (function(f, x)
+	local out = ({tag = "list", n = 0})
+	local temp = n1(x)
+	local temp1 = 1
+	while temp1 <= temp do
+		out[temp1] = f(x[temp1])
+		temp1 = temp1 + 1
+	end
+	out["n"] = n1(x)
+	return out
+end)
+keys1 = (function(x)
+	local out, n = ({tag = "list", n = 0}), 0
+	local temp, _ = next1(x)
+	while temp ~= nil do
+		n = 1 + n
+		out[n] = temp
+		temp, _ = next1(x, temp)
+	end
+	out["n"] = n
+	return unpack1(out, 1, out["n"])
+end)
+put_21_1 = (function(t, typs, l)
+	while not (list_3f_1(typs) and n1(typs) == 1) do
+		local x, y = car1(typs), cdr1(typs)
+		if t[x] then
+			t, typs = t[x], y
+		else
+			t[x] = ({})
+			t, typs = t[x], y
+		end
+	end
+	t[car1(typs)] = l
+	return nil
+end)
+eq_3f_1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(temp_this, x, y)
+	local temp_method
+	local temp = temp_this["lookup"]
+	if temp then
+		local temp1 = temp[type1(x)]
+		if temp1 then
+			temp_method = temp1[type1(y)] or nil
+		else
+			temp_method = nil
+		end
+	else
+		temp_method = nil
+	end
+	if not temp_method then
+		if temp_this["default"] then
+			temp_method = temp_this["default"]
+		else
+			error1("No matching method to call for " .. (type1(x) .. " ") .. (type1(y) .. " ") .. "\nthere are methods to call for " .. keys1(temp_this["lookup"]))
+		end
+	end
+	return temp_method(x, y)
+end)}))
+put_21_1(eq_3f_1, list1("lookup", "list", "list"), (function(myself)
+	myself = (function(x, y)
+		if n1(x) ~= n1(y) then
+			return false
+		else
+			local equal = true
+			local temp = n1(x)
+			local temp1 = 1
+			while temp1 <= temp do
+				if neq_3f_1(x[temp1], y[temp1]) then
+					equal = false
+				end
+				temp1 = temp1 + 1
+			end
+			return equal
+		end
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "table", "table"), (function(myself)
+	myself = (function(x, y)
+		local equal = true
+		local temp, v = next1(x)
+		while temp ~= nil do
+			if neq_3f_1(v, y[temp]) then
+				equal = false
+			end
+			temp, v = next1(x, temp)
+		end
+		return equal
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "symbol", "symbol"), (function(myself)
+	myself = (function(x, y)
+		return x["contents"] == y["contents"]
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "string", "symbol"), (function(myself)
+	myself = (function(x, y)
+		return x == y["contents"]
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "symbol", "string"), (function(myself)
+	myself = (function(x, y)
+		return x["contents"] == y
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "key", "string"), (function(myself)
+	myself = (function(x, y)
+		return x["value"] == y
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "string", "key"), (function(myself)
+	myself = (function(x, y)
+		return x == y["value"]
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "key", "key"), (function(myself)
+	myself = (function(x, y)
+		return x["value"] == y["value"]
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "number", "number"), (function(myself)
+	myself = (function(x, y)
+		return constVal1(x) == constVal1(y)
+	end)
+	return myself
+end)(nil))
+put_21_1(eq_3f_1, list1("lookup", "string", "string"), (function(myself)
+	myself = (function(x, y)
+		return constVal1(x) == constVal1(y)
+	end)
+	return myself
+end)(nil))
+eq_3f_1["default"] = (function(myself)
+	myself = (function(x, y)
+		return false
+	end)
+	return myself
+end)(nil)
+local original = getmetatable1(eq_3f_1)["__call"]
+getmetatable1(eq_3f_1)["__call"] = (function(self, x, y)
+	if x == y then
+		return true
+	else
+		return original(self, x, y)
+	end
+end)
+pretty1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(temp_this, x)
+	local temp_method
+	local temp = temp_this["lookup"]
+	if temp then
+		temp_method = temp[type1(x)] or nil
+	else
+		temp_method = nil
+	end
+	if not temp_method then
+		if temp_this["default"] then
+			temp_method = temp_this["default"]
+		else
+			error1("No matching method to call for " .. (type1(x) .. " ") .. "\nthere are methods to call for " .. keys1(temp_this["lookup"]))
+		end
+	end
+	return temp_method(x)
+end)}))
+put_21_1(pretty1, list1("lookup", "list"), (function(myself)
+	myself = (function(xs)
+		return "(" .. concat1(map1(pretty1, xs), " ") .. ")"
+	end)
+	return myself
+end)(nil))
+put_21_1(pretty1, list1("lookup", "symbol"), (function(myself)
+	myself = (function(x)
+		return x["contents"]
+	end)
+	return myself
+end)(nil))
+put_21_1(pretty1, list1("lookup", "key"), (function(myself)
+	myself = (function(x)
+		return ":" .. x["value"]
+	end)
+	return myself
+end)(nil))
+put_21_1(pretty1, list1("lookup", "number"), (function(myself)
+	myself = (function(x)
+		return tostring1(constVal1(x))
+	end)
+	return myself
+end)(nil))
+put_21_1(pretty1, list1("lookup", "string"), (function(myself)
+	myself = (function(x)
+		return format1("%q", constVal1(x))
+	end)
+	return myself
+end)(nil))
+put_21_1(pretty1, list1("lookup", "table"), (function(myself)
+	myself = (function(x)
+		local out = ({tag = "list", n = 0})
+		local temp, v = next1(x)
+		while temp ~= nil do
+			local _offset, _result, _temp = 0, {tag="list",n=0}
+			_result[1 + _offset] = pretty1(temp) .. " " .. pretty1(v)
+			_temp = out
+			for _c = 1, _temp.n do _result[1 + _c + _offset] = _temp[_c] end
+			_offset = _offset + _temp.n
+			_result.n = _offset + 1
+			out = _result
+			temp, v = next1(x, temp)
+		end
+		return "{" .. (concat1(out, " ") .. "}")
+	end)
+	return myself
+end)(nil))
+pretty1["default"] = (function(myself)
+	myself = (function(x)
+		return tostring1(x)
+	end)
+	return myself
+end)(nil)
+abs1 = math.abs
+car2 = (function(x)
+	local temp = type1(x)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "x", "list", temp), 2)
+	end
+	return car1(x)
+end)
+reduce1 = (function(f, z, xs)
+	local temp = type1(f)
+	if temp ~= "function" then
+		error1(format1("bad argument %s (expected %s, got %s)", "f", "function", temp), 2)
+	end
+	local start = 1
+	if nil_3f_1(xs) and list_3f_1(z) then
+		start = 2
+		xs = z
+		z = car2(z)
+	end
+	local temp = type1(xs)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
+	end
+	local accum = z
+	local temp = n1(xs)
+	local temp1 = start
+	while temp1 <= temp do
+		accum = f(accum, nth1(xs, temp1))
+		temp1 = temp1 + 1
+	end
+	return accum
+end)
+partition1 = (function(p, xs)
+	local temp = type1(p)
+	if temp ~= "function" then
+		error1(format1("bad argument %s (expected %s, got %s)", "p", "function", temp), 2)
+	end
+	local temp = type1(xs)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
+	end
+	local passed, failed = ({tag = "list", n = 0}), ({tag = "list", n = 0})
+	local temp = n1(xs)
+	local temp1 = 1
+	while temp1 <= temp do
+		local x = nth1(xs, temp1)
+		pushCdr_21_1((function()
+			if p(x) then
+				return passed
+			else
+				return failed
+			end
+		end)(), x)
+		temp1 = temp1 + 1
+	end
+	return unpack1(list1(passed, failed), 1, 2)
+end)
+filter1 = (function(p, xs)
+	return first1(partition1(p, xs))
+end)
+nth1 = (function(xs, idx)
+	if idx >= 0 then
+		return xs[idx]
+	else
+		return xs[xs["n"] + 1 + idx]
+	end
+end)
+pushCdr_21_1 = (function(xs, val)
+	local temp = type1(xs)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
+	end
+	local len = n1(xs) + 1
+	xs["n"] = len
+	xs[len] = val
+	return xs
+end)
+removeNth_21_1 = (function(li, idx)
+	local temp = type1(li)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "li", "list", temp), 2)
+	end
+	li["n"] = li["n"] - 1
+	return remove1(li, idx)
+end)
+charAt1 = (function(xs, x)
+	return sub1(xs, x, x)
+end)
+clock1 = os.clock
+exit1 = os.exit
+getenv1 = os.getenv
+flush1 = io.flush
+open1 = io.open
+read1 = io.read
+write1 = io.write
+succ1 = (function(x)
+	return x + 1
+end)
+pred1 = (function(x)
+	return x - 1
+end)
+symbol_2d3e_string1 = (function(x)
+	if symbol_3f_1(x) then
+		return x["contents"]
+	else
+		return nil
+	end
+end)
+fail_21_1 = (function(x)
+	return error1(x, 0)
+end)
+exit_21_1 = (function(reason, code)
+	local code1
+	if string_3f_1(reason) then
+		code1 = code
+	else
+		code1 = reason
+	end
+	if exit1 then
+		if string_3f_1(reason) then
+			print1(reason)
+		end
+		return exit1(code1)
+	elseif string_3f_1(reason) then
+		return fail_21_1(reason)
+	else
+		return fail_21_1()
+	end
+end)
+self1 = (function(x, key, ...)
+	local args = _pack(...) args.tag = "list"
+	return x[key](x, unpack1(args, 1, n1(args)))
+end)
+config1 = package.config
+coloredAnsi1 = (function(col, msg)
+	return "\27[" .. col .. "m" .. msg .. "\27[0m"
+end)
+local termTy = lower1(getenv1 and getenv1("TERM") or "")
+if termTy == "dumb" then
+	colored_3f_1 = false
+elseif find1(termTy, "xterm") then
+	colored_3f_1 = true
+elseif config1 and charAt1(config1, 1) == "/" then
+	colored_3f_1 = true
+elseif getenv1 and getenv1("ANSICON") ~= nil then
+	colored_3f_1 = true
+else
+	colored_3f_1 = false
+end
+if colored_3f_1 then
+	colored1 = coloredAnsi1
+else
+	colored1 = (function(col, msg)
+		return msg
+	end)
+end
+create1 = (function(description)
+	return ({["desc"]=description,["flag-map"]=({}),["opt-map"]=({}),["cats"]=({tag = "list", n = 0}),["opt"]=({tag = "list", n = 0}),["pos"]=({tag = "list", n = 0})})
+end)
+setAction1 = (function(arg, data, value)
+	data[arg["name"]] = value
+	return nil
+end)
+addAction1 = (function(arg, data, value)
+	local lst = data[arg["name"]]
+	if not lst then
+		lst = ({tag = "list", n = 0})
+		data[arg["name"]] = lst
+	end
+	return pushCdr_21_1(lst, value)
+end)
+addArgument_21_1 = (function(spec, names, ...)
+	local options = _pack(...) options.tag = "list"
+	local temp = type1(names)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "names", "list", temp), 2)
+	end
+	if empty_3f_1(names) then
+		error1("Names list is empty")
+	end
+	if not (n1(options) % 2 == 0) then
+		error1("Options list should be a multiple of two")
+	end
+	local result = ({["names"]=names,["action"]=nil,["narg"]=0,["default"]=false,["help"]="",["value"]=true})
+	local first = car2(names)
+	if sub1(first, 1, 2) == "--" then
+		pushCdr_21_1(spec["opt"], result)
+		result["name"] = sub1(first, 3)
+	elseif sub1(first, 1, 1) == "-" then
+		pushCdr_21_1(spec["opt"], result)
+		result["name"] = sub1(first, 2)
+	else
+		result["name"] = first
+		result["narg"] = "*"
+		result["default"] = ({tag = "list", n = 0})
+		pushCdr_21_1(spec["pos"], result)
+	end
+	local temp = n1(names)
+	local temp1 = 1
+	while temp1 <= temp do
+		local name = names[temp1]
+		if sub1(name, 1, 2) == "--" then
+			spec["opt-map"][sub1(name, 3)] = result
+		elseif sub1(name, 1, 1) == "-" then
+			spec["flag-map"][sub1(name, 2)] = result
+		end
+		temp1 = temp1 + 1
+	end
+	local temp = n1(options)
+	local temp1 = 1
+	while temp1 <= temp do
+		result[nth1(options, temp1)] = (nth1(options, temp1 + 1))
+		temp1 = temp1 + 2
+	end
+	if not result["var"] then
+		result["var"] = upper1(result["name"])
+	end
+	if not result["action"] then
+		result["action"] = (function()
+			local temp
+			if number_3f_1(result["narg"]) then
+				temp = result["narg"] <= 1
+			else
+				temp = result["narg"] == "?"
+			end
+			if temp then
+				return setAction1
+			else
+				return addAction1
+			end
+		end)()
+	end
+	return result
+end)
+addHelp_21_1 = (function(spec)
+	return addArgument_21_1(spec, ({tag = "list", n = 2, "--help", "-h"}), "help", "Show this help message", "default", nil, "value", nil, "action", (function(arg, result, value)
+		help_21_1(spec)
+		return exit_21_1(0)
+	end))
+end)
+usageNarg_21_1 = (function(buffer, arg)
+	local temp = arg["narg"]
+	if temp == "?" then
+		return pushCdr_21_1(buffer, " [" .. arg["var"] .. "]")
+	elseif temp == "*" then
+		return pushCdr_21_1(buffer, " [" .. arg["var"] .. "...]")
+	elseif temp == "+" then
+		return pushCdr_21_1(buffer, " " .. arg["var"] .. " [" .. arg["var"] .. "...]")
+	else
+		local temp1 = 1
+		while temp1 <= temp do
+			pushCdr_21_1(buffer, " " .. arg["var"])
+			temp1 = temp1 + 1
+		end
+		return nil
+	end
+end)
+usage_21_1 = (function(spec, name)
+	if not name then
+		name = nth1(arg1, 0) or (arg1[-1] or "?")
+	end
+	local usage = list1("usage: ", name)
+	local temp = spec["opt"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local arg = temp[temp2]
+		pushCdr_21_1(usage, " [" .. car2(arg["names"]))
+		usageNarg_21_1(usage, arg)
+		pushCdr_21_1(usage, "]")
+		temp2 = temp2 + 1
+	end
+	local temp = spec["pos"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		usageNarg_21_1(usage, (temp[temp2]))
+		temp2 = temp2 + 1
+	end
+	return print1(concat1(usage))
+end)
+usageError_21_1 = (function(spec, name, error)
+	usage_21_1(spec, name)
+	print1(error)
+	return exit_21_1(1)
+end)
+helpArgs_21_1 = (function(pos, opt, format)
+	if (empty_3f_1(pos) and empty_3f_1(opt)) then
+		return nil
+	else
+		print1()
+		local temp = n1(pos)
+		local temp1 = 1
+		while temp1 <= temp do
+			local arg = pos[temp1]
+			print1(format1(format, arg["var"], arg["help"]))
+			temp1 = temp1 + 1
+		end
+		local temp = n1(opt)
+		local temp1 = 1
+		while temp1 <= temp do
+			local arg = opt[temp1]
+			print1(format1(format, concat1(arg["names"], ", "), arg["help"]))
+			temp1 = temp1 + 1
+		end
+		return nil
+	end
+end)
+help_21_1 = (function(spec, name)
+	if not name then
+		name = nth1(arg1, 0) or (arg1[-1] or "?")
+	end
+	usage_21_1(spec, name)
+	if spec["desc"] then
+		print1()
+		print1(spec["desc"])
+	end
+	local max = 0
+	local temp = spec["pos"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local arg = temp[temp2]
+		local len = n1(arg["var"])
+		if len > max then
+			max = len
+		end
+		temp2 = temp2 + 1
+	end
+	local temp = spec["opt"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local arg = temp[temp2]
+		local len = n1(concat1(arg["names"], ", "))
+		if len > max then
+			max = len
+		end
+		temp2 = temp2 + 1
+	end
+	local fmt = " %-" .. tostring1(max + 1) .. "s %s"
+	helpArgs_21_1(filter1((function(x)
+		return x["cat"] == nil
+	end), spec["pos"]), filter1((function(x)
+		return x["cat"] == nil
+	end), spec["opt"]), fmt)
+	local temp = spec["cats"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local cat = temp[temp2]
+		print1()
+		print1(colored1("4", cat["name"]))
+		local desc = cat["desc"]
+		if desc then
+			print1(desc)
+		end
+		helpArgs_21_1(filter1((function(x)
+			return x["cat"] == cat["id"]
+		end), spec["pos"]), filter1((function(x)
+			return x["cat"] == cat["id"]
+		end), spec["opt"]), fmt)
+		temp2 = temp2 + 1
+	end
+	return nil
+end)
+matcher1 = (function(pattern)
+	return (function(x)
+		local res = list1(match1(x, pattern))
+		if car2(res) == nil then
+			return nil
+		else
+			return res
+		end
+	end)
+end)
+parse_21_1 = (function(spec, args)
+	if not args then
+		args = arg1
+	end
+	local result, pos, idx, len, usage_21_ = ({}), spec["pos"], 1, n1(args), (function(msg)
+		return usageError_21_1(spec, nth1(args, 0), msg)
+	end)
+	local action = (function(arg, value)
+		return arg["action"](arg, result, value, usage_21_)
+	end)
+	local readArgs = (function(key, arg)
+		local temp = arg["narg"]
+		if temp == "+" then
+			idx = succ1(idx)
+			local elem = nth1(args, idx)
+			if elem == nil then
+				usage_21_("Expected " .. arg["var"] .. " after --" .. key .. ", got nothing")
+			elseif _21_1(arg["all"]) and find1(elem, "^%-") then
+				usage_21_("Expected " .. arg["var"] .. " after --" .. key .. ", got " .. nth1(args, idx))
+			else
+				action(arg, elem)
+			end
+			local running = true
+			while running do
+				idx = succ1(idx)
+				local elem = nth1(args, idx)
+				if elem == nil then
+					running = false
+				elseif _21_1(arg["all"]) and find1(elem, "^%-") then
+					running = false
+				else
+					action(arg, elem)
+				end
+			end
+			return nil
+		elseif temp == "*" then
+			local running = true
+			while running do
+				idx = succ1(idx)
+				local elem = nth1(args, idx)
+				if elem == nil then
+					running = false
+				elseif _21_1(arg["all"]) and find1(elem, "^%-") then
+					running = false
+				else
+					action(arg, elem)
+				end
+			end
+			return nil
+		elseif temp == "?" then
+			idx = succ1(idx)
+			local elem = nth1(args, idx)
+			if elem == nil or _21_1(arg["all"]) and find1(elem, "^%-") then
+				return arg["action"](arg, result, arg["value"])
+			else
+				idx = succ1(idx)
+				return action(arg, elem)
+			end
+		elseif temp == 0 then
+			idx = succ1(idx)
+			return action(arg, arg["value"])
+		else
+			local temp1 = 1
+			while temp1 <= temp do
+				idx = succ1(idx)
+				local elem = nth1(args, idx)
+				if elem == nil then
+					usage_21_("Expected " .. temp .. " args for " .. key .. ", got " .. pred1(temp1))
+				elseif _21_1(arg["all"]) and find1(elem, "^%-") then
+					usage_21_("Expected " .. temp .. " for " .. key .. ", got " .. pred1(temp1))
+				else
+					action(arg, elem)
+				end
+				temp1 = temp1 + 1
+			end
+			idx = succ1(idx)
+			return nil
+		end
+	end)
+	while idx <= len do
+		local temp = nth1(args, idx)
+		local temp1
+		local temp2 = matcher1("^%-%-([^=]+)=(.+)$")(temp)
+		temp1 = list_3f_1(temp2) and (n1(temp2) >= 2 and (n1(temp2) <= 2 and true))
+		if temp1 then
+			local key, val = nth1(matcher1("^%-%-([^=]+)=(.+)$")(temp), 1), nth1(matcher1("^%-%-([^=]+)=(.+)$")(temp), 2)
+			local arg = spec["opt-map"][key]
+			if arg == nil then
+				usage_21_("Unknown argument " .. key .. " in " .. nth1(args, idx))
+			elseif _21_1(arg["many"]) and nil ~= result[arg["name"]] then
+				usage_21_("Too may values for " .. key .. " in " .. nth1(args, idx))
+			else
+				local narg = arg["narg"]
+				if number_3f_1(narg) and narg ~= 1 then
+					usage_21_("Expected " .. tostring1(narg) .. " values, got 1 in " .. nth1(args, idx))
+				end
+				action(arg, val)
+			end
+			idx = succ1(idx)
+		else
+			local temp1
+			local temp2 = matcher1("^%-%-(.*)$")(temp)
+			temp1 = list_3f_1(temp2) and (n1(temp2) >= 1 and (n1(temp2) <= 1 and true))
+			if temp1 then
+				local key = nth1(matcher1("^%-%-(.*)$")(temp), 1)
+				local arg = spec["opt-map"][key]
+				if arg == nil then
+					usage_21_("Unknown argument " .. key .. " in " .. nth1(args, idx))
+				elseif _21_1(arg["many"]) and nil ~= result[arg["name"]] then
+					usage_21_("Too may values for " .. key .. " in " .. nth1(args, idx))
+				else
+					readArgs(key, arg)
+				end
+			else
+				local temp1
+				local temp2 = matcher1("^%-(.+)$")(temp)
+				temp1 = list_3f_1(temp2) and (n1(temp2) >= 1 and (n1(temp2) <= 1 and true))
+				if temp1 then
+					local flags, i = nth1(matcher1("^%-(.+)$")(temp), 1), 1
+					local s = n1(flags)
+					while i <= s do
+						local key = charAt1(flags, i)
+						local arg = spec["flag-map"][key]
+						if arg == nil then
+							usage_21_("Unknown flag " .. key .. " in " .. nth1(args, idx))
+						elseif _21_1(arg["many"]) and nil ~= result[arg["name"]] then
+							usage_21_("Too many occurances of " .. key .. " in " .. nth1(args, idx))
+						else
+							local narg = arg["narg"]
+							if i == s then
+								readArgs(key, arg)
+							elseif narg == 0 then
+								action(arg, arg["value"])
+							else
+								action(arg, sub1(flags, succ1(i)))
+								i = succ1(s)
+								idx = succ1(idx)
+							end
+						end
+						i = succ1(i)
+					end
+				else
+					local arg = car2(spec["pos"])
+					if arg then
+						action(arg, temp)
+					else
+						usage_21_("Unknown argument " .. arg)
+					end
+					idx = succ1(idx)
+				end
+			end
+		end
+	end
+	local temp = spec["opt"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local arg = temp[temp2]
+		if result[arg["name"]] == nil then
+			result[arg["name"]] = arg["default"]
+		end
+		temp2 = temp2 + 1
+	end
+	local temp = spec["pos"]
+	local temp1 = n1(temp)
+	local temp2 = 1
+	while temp2 <= temp1 do
+		local arg = temp[temp2]
+		if result[arg["name"]] == nil then
+			result[arg["name"]] = arg["default"]
+		end
+		temp2 = temp2 + 1
+	end
+	return result
+end)
+readAllMode_21_1 = (function(path, binary)
+	local handle = open1(path, "r" .. (function()
+		if binary then
+			return "b"
+		else
+			return ""
+		end
+	end)())
+	if handle then
+		local data = self1(handle, "read", "*all")
+		if data then
+			self1(handle, "close")
+			return data
+		else
+			return nil
+		end
+	else
+		return nil
+	end
+end)
+readAll_21_1 = (function(path)
+	return readAllMode_21_1(path, false)
+end)
+parse1 = (function(code)
+	local result, pointer, buffer, pointerMin, pointerMax = ({tag = "list", n = 0}), 0, ({}), 0, 0
+	local emit_21_ = (function(insn)
+		return pushCdr_21_1(result, insn)
+	end)
+	local resetPointer_21_, emitBuffer_21_, inc_21_, dec_21_ = (function(move)
+		if pointer ~= 0 and move then
+			local insn = ({})
+			if pointer < 0 then
+				insn["op"] = 2
+			else
+				insn["op"] = 3
+			end
+			insn["count"] = abs1(pointer)
+			emit_21_(insn)
+		end
+		pointer = 0
+		pointerMin = 0
+		pointerMax = 0
+		buffer = ({})
+		return nil
+	end), (function()
+		local temp = pointerMax
+		local temp1 = pointerMin
+		while temp1 <= temp do
+			local be = buffer[temp1]
+			if be ~= nil and be ~= 0 then
+				local insn = ({})
+				if be < 0 then
+					insn["op"] = 1
+				else
+					insn["op"] = 0
+				end
+				insn["offset"] = temp1
+				insn["count"] = abs1(be)
+				emit_21_(insn)
+			end
+			temp1 = temp1 + 1
+		end
+		buffer = ({})
+		return nil
+	end), (function()
+		if buffer[pointer] then
+			buffer[pointer] = buffer[pointer] + 1
+			return nil
+		else
+			buffer[pointer] = 1
+			return nil
+		end
+	end), (function()
+		if buffer[pointer] then
+			buffer[pointer] = buffer[pointer] - 1
+			return nil
+		else
+			buffer[pointer] = -1
+			return nil
+		end
+	end)
+	local temp = n1(code)
+	local temp1 = 1
+	while temp1 <= temp do
+		local c = charAt1(code, temp1)
+		if c == "+" then
+			inc_21_()
+		elseif c == "-" then
+			dec_21_()
+		elseif c == ">" then
+			pointer = pointer + 1
+			if pointer > pointerMax then
+				pointerMax = pointer
+			end
+		elseif c == "<" then
+			pointer = pointer - 1
+			if pointer < pointerMin then
+				pointerMin = pointer
+			end
+		elseif c == "." then
+			emitBuffer_21_()
+			emit_21_(({["op"]=5,["offset"]=pointer}))
+		elseif c == "," then
+			emitBuffer_21_()
+			emit_21_(({["op"]=4,["offset"]=pointer}))
+		elseif c == "[" then
+			emitBuffer_21_()
+			resetPointer_21_(true)
+			emit_21_(({["op"]=6,["offset"]=pointer}))
+		elseif c == "]" then
+			emitBuffer_21_()
+			resetPointer_21_(true)
+			emit_21_(({["op"]=7}))
+		end
+		temp1 = temp1 + 1
+	end
+	return result
+end)
+ir_2d3e_string1 = (function(ir)
+	local result, level = "", 0
+	local emit_21_ = (function(s)
+		result = result .. s
+		return nil
+	end)
+	local temp = n1(ir)
+	local temp1 = 1
+	while temp1 <= temp do
+		local insn = ir[temp1]
+		local op, cnt, offset, offsetSrc, offsetDst = insn["op"], insn["count"], insn["offset"], insn["offset-src"], insn["offset-dst"]
+		if op == 7 then
+			level = level - 1
+		end
+		local temp2 = level
+		local temp3 = 1
+		while temp3 <= temp2 do
+			emit_21_("    ")
+			temp3 = temp3 + 1
+		end
+		if op == 0 then
+			emit_21_("inc [" .. offset .. "] " .. cnt .. "\n")
+		elseif op == 1 then
+			emit_21_("dec [" .. offset .. "] " .. cnt .. "\n")
+		elseif op == 2 then
+			emit_21_("left " .. cnt .. "\n")
+		elseif op == 3 then
+			emit_21_("right " .. cnt .. "\n")
+		elseif op == 5 then
+			emit_21_("write [" .. offset .. "]\n")
+		elseif op == 4 then
+			emit_21_("read [" .. offset .. "]\n")
+		elseif op == 6 then
+			emit_21_("open [" .. offset .. "]\n")
+			level = level + 1
+		elseif op == 7 then
+			emit_21_("close\n")
+		elseif op == 8 then
+			emit_21_("clear [" .. offset .. "]\n")
+		elseif op == 9 then
+			emit_21_("move [" .. offsetSrc .. "] [" .. offsetDst .. "]\n")
+		elseif op == 10 then
+			emit_21_("copy [" .. offsetSrc .. "] [" .. offsetDst .. "]\n")
+		else
+			_error("unmatched item")
+		end
+		temp1 = temp1 + 1
+	end
+	return result
+end)
+buildJumpTable1 = (function(ir)
+	local jumpTable, loopStack = ({}), ({tag = "list", n = 0})
+	local push_21_, pop_21_ = (function(i)
+		return pushCdr_21_1(loopStack, i)
+	end), (function()
+		local i = nth1(loopStack, n1(loopStack))
+		removeNth_21_1(loopStack, n1(loopStack))
+		return i
+	end)
+	local temp = n1(ir)
+	local temp1 = 1
+	while temp1 <= temp do
+		local insn = nth1(ir, temp1)
+		local op = insn["op"]
+		if op == 6 then
+			push_21_(temp1)
+		elseif op == 7 then
+			local start = pop_21_()
+			jumpTable[temp1] = start + 1
+			jumpTable[start] = temp1 + 1
+		end
+		temp1 = temp1 + 1
+	end
+	return jumpTable
+end)
+irToLua1 = (function(ir)
+	local result, level = "", 0
+	local emit_21_ = (function(s)
+		result = result .. s
+		return nil
+	end)
+	emit_21_("local tape = {}\n")
+	emit_21_("local dp = 1\n")
+	emit_21_("for i = 1, 30000 do tape[i] = 0 end\n")
+	local temp = n1(ir)
+	local temp1 = 1
+	while temp1 <= temp do
+		local insn = ir[temp1]
+		local op, offset, offsetSrc, offsetDst, cnt = insn["op"], insn["offset"], insn["offset-src"], insn["offset-dst"], insn["count"]
+		if op == 7 then
+			level = pred1(level)
+		end
+		local temp2 = level
+		local temp3 = 1
+		while temp3 <= temp2 do
+			emit_21_("    ")
+			temp3 = temp3 + 1
+		end
+		if op == 0 then
+			emit_21_("tape[dp + " .. offset .. "] = tape[dp + " .. offset .. "] + " .. cnt .. "\n")
+		elseif op == 1 then
+			emit_21_("tape[dp + " .. offset .. "] = tape[dp + " .. offset .. "] - " .. cnt .. "\n")
+		elseif op == 3 then
+			emit_21_("dp = dp + " .. cnt .. "\n")
+		elseif op == 2 then
+			emit_21_("dp = dp - " .. cnt .. "\n")
+		elseif op == 5 then
+			emit_21_("io.write(string.char(tape[dp + " .. offset .. "])) io.flush()\n")
+		elseif op == 4 then
+			emit_21_("do local c = io.read(1) if c then tape[dp + " .. offset .. "] = string.byte(c) else tape[dp + " .. offset .. "] = 0 end end\n")
+		elseif op == 6 then
+			emit_21_("while tape[dp + " .. offset .. "] ~= 0 do\n")
+			level = succ1(level)
+		elseif op == 7 then
+			emit_21_("end\n")
+		elseif op == 8 then
+			emit_21_("tape[dp + " .. offset .. "] = 0\n")
+		elseif op == 9 then
+			emit_21_("if tape[dp + " .. offsetSrc .. "] ~= 0 then tape[dp + " .. offsetDst .. "] = tape[dp + " .. offsetDst .. "] + tape[dp + " .. offsetSrc .. "] tape[dp + " .. offsetSrc .. "] = 0 end\n")
+		elseif op == 10 then
+			emit_21_("if tape[dp + " .. offsetSrc .. "] ~= 0 then tape[dp + " .. offsetDst .. "] = tape[dp + " .. offsetDst .. "] + tape[dp + " .. offsetSrc .. "] end\n")
+		else
+			_error("unmatched item")
+		end
+		temp1 = temp1 + 1
+	end
+	return result
+end)
+irToC1 = (function(ir)
+	local result, level = "", 1
+	local emit_21_ = (function(s)
+		result = result .. s
+		return nil
+	end)
+	emit_21_("#include <stdio.h>\n")
+	emit_21_("int main(int argc, char **argv) {\n")
+	emit_21_("    unsigned char tape[30000];\n")
+	emit_21_("    unsigned int dp = 0;\n")
+	local temp = n1(ir)
+	local temp1 = 1
+	while temp1 <= temp do
+		local insn = nth1(ir, temp1)
+		local op, offset, offsetSrc, offsetDst, cnt = insn["op"], insn["offset"], insn["offset-src"], insn["offset-dst"], insn["count"]
+		if op == 7 then
+			level = pred1(level)
+		end
+		local temp2 = level
+		local temp3 = 1
+		while temp3 <= temp2 do
+			emit_21_("    ")
+			temp3 = temp3 + 1
+		end
+		if op == 0 then
+			emit_21_("tape[dp + " .. offset .. "] += " .. cnt .. ";\n")
+		elseif op == 1 then
+			emit_21_("tape[dp + " .. offset .. "] -= " .. cnt .. ";\n")
+		elseif op == 3 then
+			emit_21_("dp += " .. cnt .. ";\n")
+		elseif op == 2 then
+			emit_21_("dp -= " .. cnt .. ";\n")
+		elseif op == 5 then
+			emit_21_("putchar(tape[dp + " .. offset .. "]); fflush(stdout);\n")
+		elseif op == 4 then
+			emit_21_("tape[dp + " .. offset .. "] = getchar();\n")
+		elseif op == 6 then
+			emit_21_("while(tape[dp + " .. offset .. "]) {\n")
+			level = succ1(level)
+		elseif op == 7 then
+			emit_21_("}\n")
+		elseif op == 8 then
+			emit_21_("tape[dp + " .. offset .. "] = 0;\n")
+		elseif op == 9 then
+			emit_21_("if(tape[dp + " .. offsetSrc .. "]) { tape[dp + " .. offsetDst .. "] += tape[dp + " .. offsetSrc .. "]; tape[dp + " .. offsetSrc .. "] = 0; }\n")
+		elseif op == 9 then
+			emit_21_("if(tape[dp + " .. offsetSrc .. "]) tape[dp + " .. offsetDst .. "] += tape[dp + " .. offsetSrc .. "];\n")
+		else
+			_error("unmatched item")
+		end
+		temp1 = temp1 + 1
+	end
+	emit_21_("}")
+	return result
+end)
+interpretIr_21_1 = (function(ir)
+	local jumpTable, tape, dp, ip = buildJumpTable1(ir), ({tag = "list", n = 0}), 1, 1
+	local temp = 1
+	while temp <= 30000 do
+		tape[temp] = 0
+		temp = temp + 1
+	end
+	while ip >= 1 and ip <= n1(ir) do
+		local nip, insn = ip + 1, nth1(ir, ip)
+		local op, offset, offsetSrc, offsetDst, cnt = insn["op"], insn["offset"], insn["offset-src"], insn["offset-dst"], insn["count"]
+		if op == 0 then
+			local idx = dp + offset
+			tape[idx] = tape[idx] + cnt
+		elseif op == 1 then
+			local idx = dp + offset
+			tape[idx] = tape[idx] - cnt
+		elseif op == 2 then
+			dp = dp - cnt
+		elseif op == 3 then
+			dp = dp + cnt
+		elseif op == 5 then
+			write1(char1(tape[dp + offset]))
+			flush1()
+		elseif op == 4 then
+			local c, idx = read1(1), dp + offset
+			if c then
+				tape[idx] = byte1(c)
+			else
+				tape[idx] = 0
+			end
+		elseif op == 6 then
+			if tape[dp + offset] == 0 then
+				nip = jumpTable[ip]
+			end
+		elseif op == 7 then
+			if tape[dp] ~= 0 then
+				nip = jumpTable[ip]
+			end
+		elseif op == 8 then
+			tape[dp + offset] = 0
+		elseif op == 9 then
+			if tape[dp + offsetSrc] ~= 0 then
+				tape[dp + offsetDst] = tape[dp + offsetDst] + tape[dp + offsetSrc]
+				tape[dp + offsetSrc] = 0
+			end
+		elseif op == 10 then
+			if tape[dp + offsetSrc] ~= 0 then
+				tape[dp + insn["offset-dst"]] = tape[dp + insn["offset-src"]]
+			end
+		else
+			_error("unmatched item")
+		end
+		ip = nip
+	end
+	return nil
+end)
+match2 = (function(ir, pattern, index)
+	local match, i, vars = ({["start"]=index,["end"]=index + (n1(pattern) - 1),["data"]=({tag = "list", n = 0})}), 1, ({})
+	local lookup = (function(var, val)
+		local value = vars[var]
+		if value then
+			return value
+		else
+			vars[var] = val
+			return val
+		end
+	end)
+	local check_21_ = (function(a, b)
+		if type1(a) == "symbol" then
+			a = lookup(symbol_2d3e_string1(a), b)
+		end
+		if type1(b) == "symbol" then
+			b = lookup(symbol_2d3e_string1(b), a)
+		end
+		if a == nil or (b == nil or a ~= b) then
+			match = nil
+			return nil
+		else
+			return nil
+		end
+	end)
+	while i <= n1(pattern) and match do
+		if match then
+			local insn = nth1(ir, (index + i) - 1)
+			local op, cnt, offset, target = insn["op"], insn["count"], insn["offset"], nth1(pattern, i)
+			if insn["op"] ~= nth1(target, 1) then
+				match = nil
+			else
+				pushCdr_21_1(match["data"], insn)
+				if op == 0 or op == 1 then
+					check_21_(offset, nth1(target, 2))
+					check_21_(cnt, nth1(target, 3))
+				elseif op == 2 or op == 3 then
+					check_21_(cnt, nth1(target, 2))
+				elseif op == 4 or (op == 5 or (op == 8 or op == 6)) then
+					check_21_(offset, nth1(target, 2))
+				elseif op == 9 or op == 10 then
+					check_21_(insn["offset-src"], nth1(target, 2))
+					check_21_(insn["offset-dst"], nth1(target, 3))
+				end
+			end
+		end
+		i = succ1(i)
+	end
+	if match then
+		match["vars"] = vars
+	end
+	return match
+end)
+clearLoopRemoval1 = ({["matcher"]=(function(temp)
+	local temp1, temp2 = ({tag = "list", n = 3, ({tag = "list", n = 2, 6, ({ tag="symbol", contents="a"})}), ({tag = "list", n = 3, 1, ({ tag="symbol", contents="a"}), 1}), ({tag = "list", n = 1, 7})}), ({tag = "list", n = 0})
+	local temp3 = n1(temp)
+	local temp4 = 1
+	while temp4 <= temp3 do
+		local temp5 = temp4
+		local temp6 = match2(temp, temp1, temp5)
+		if temp6 then
+			pushCdr_21_1(temp2, temp6)
+			temp5 = temp6["end"] + 1
+		end
+		temp4 = temp4 + 1
+	end
+	return temp2
+end),["replacer"]=(function(match)
+	return list1(({["op"]=8,["offset"]=0}))
+end)})
+moveLoopRemovalReplacer1 = (function(match)
+	return list1(({["op"]=9,["offset-src"]=match["vars"]["src"],["offset-dst"]=match["vars"]["dst"]}))
+end)
+moveLoopRemovalA1 = ({["matcher"]=(function(temp)
+	local temp1, temp2 = ({tag = "list", n = 4, ({tag = "list", n = 2, 6, ({ tag="symbol", contents="src"})}), ({tag = "list", n = 3, 1, ({ tag="symbol", contents="src"}), 1}), ({tag = "list", n = 3, 0, ({ tag="symbol", contents="dst"}), 1}), ({tag = "list", n = 1, 7})}), ({tag = "list", n = 0})
+	local temp3 = n1(temp)
+	local temp4 = 1
+	while temp4 <= temp3 do
+		local temp5 = temp4
+		local temp6 = match2(temp, temp1, temp5)
+		if temp6 then
+			pushCdr_21_1(temp2, temp6)
+			temp5 = temp6["end"] + 1
+		end
+		temp4 = temp4 + 1
+	end
+	return temp2
+end),["replacer"]=moveLoopRemovalReplacer1})
+moveLoopRemovalB1 = ({["matcher"]=(function(temp)
+	local temp1, temp2 = ({tag = "list", n = 4, ({tag = "list", n = 2, 6, ({ tag="symbol", contents="src"})}), ({tag = "list", n = 3, 0, ({ tag="symbol", contents="dst"}), 1}), ({tag = "list", n = 3, 1, ({ tag="symbol", contents="src"}), 1}), ({tag = "list", n = 1, 7})}), ({tag = "list", n = 0})
+	local temp3 = n1(temp)
+	local temp4 = 1
+	while temp4 <= temp3 do
+		local temp5 = temp4
+		local temp6 = match2(temp, temp1, temp5)
+		if temp6 then
+			pushCdr_21_1(temp2, temp6)
+			temp5 = temp6["end"] + 1
+		end
+		temp4 = temp4 + 1
+	end
+	return temp2
+end),["replacer"]=moveLoopRemovalReplacer1})
+optimizeIr1 = (function(ir)
+	local opts, delta, start = list1(moveLoopRemovalA1, moveLoopRemovalB1, clearLoopRemoval1), 1, n1(ir)
+	while delta > 0 do
+		local l = n1(ir)
+		local temp = n1(opts)
+		local temp1 = 1
+		while temp1 <= temp do
+			local opt = opts[temp1]
+			ir = matchAndReplace1(ir, opt["matcher"], opt["replacer"])
+			temp1 = temp1 + 1
+		end
+		delta = l - n1(ir)
+	end
+	print1("opt: -" .. start - n1(ir))
+	return ir
+end)
+matchAndReplace1 = (function(ir, matcher, replacer)
+	local matches, nir, i, indices = matcher(ir), ({tag = "list", n = 0}), 1, ({})
+	local temp = n1(matches)
+	local temp1 = 1
+	while temp1 <= temp do
+		local match = matches[temp1]
+		indices[match["start"]] = match
+		temp1 = temp1 + 1
+	end
+	while i <= n1(ir) do
+		local match, np = indices[i], nil
+		if match then
+			np = replacer(match)
+		end
+		if match and np then
+			local temp = np
+			local temp1 = n1(temp)
+			local temp2 = 1
+			while temp2 <= temp1 do
+				pushCdr_21_1(nir, (temp[temp2]))
+				temp2 = temp2 + 1
+			end
+			i = match["end"] + 1
+		else
+			pushCdr_21_1(nir, ir[i])
+			i = i + 1
+		end
+	end
+	return nir
+end)
+local spec, args = create1(), nil
+addHelp_21_1(spec)
+addArgument_21_1(spec, ({tag = "list", n = 1, "files"}), "help", "The input files")
+addArgument_21_1(spec, ({tag = "list", n = 2, "--optimize", "-o"}))
+addArgument_21_1(spec, ({tag = "list", n = 2, "--backend", "-b"}), "help", "The backend to use (interp, jit)", "narg", 1, "default", "jit")
+args = parse_21_1(spec)
+local files, sources = args["files"], ({tag = "list", n = 0})
+local append_21_ = (function(x)
+	return pushCdr_21_1(sources, x)
+end)
+if n1(files) <= 0 then
+	usageError_21_1(spec, "lbf4me", "no sources specified")
+end
+local temp = n1(files)
+local temp1 = 1
+while temp1 <= temp do
+	local file = files[temp1]
+	local fileText = readAll_21_1(file)
+	if not fileText then
+		fail_21_1("could not read file '" .. file .. "'")
+	end
+	append_21_(fileText)
+	temp1 = temp1 + 1
+end
+local ir, backend = parse1(reduce1(_2e2e_1, "", sources)), args["backend"]
+if args["optimize"] then
+	ir = optimizeIr1(ir)
+end
+if backend == "interp" then
+	local start = clock1()
+	interpretIr_21_1(ir)
+	return print1(clock1() - start .. "s")
+elseif backend == "jit" then
+	local start = clock1()
+	load1(irToLua1(ir))()
+	return print1(clock1() - start .. "s")
+elseif backend == "ir" then
+	return print1(ir_2d3e_string1(ir))
+elseif backend == "lua" then
+	return print1(irToLua1(ir))
+elseif backend == "c" then
+	return print1(irToC1(ir))
+else
+	return print1("Invalid backend '" .. backend .. "'")
+end
